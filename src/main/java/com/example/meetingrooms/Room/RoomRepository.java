@@ -9,6 +9,6 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 @RepositoryRestResource(collectionResourceRel = "rooms", path = "rooms")
 public interface RoomRepository extends MongoRepository<Room, String> {
 
-    List<Room> findByLastName(@Param("name") String name);
+    List<Room> findByName(@Param("name") String name);
 
 }
