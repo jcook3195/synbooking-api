@@ -70,4 +70,18 @@ public class Meeting {
     public void setAttendees(String attendees) {
         this.attendees = attendees;
     }
+
+    // constructor/autowire functions
+    public Meeting(String user, String room, String title,
+            String description, String startDateTime, String endDateTime,
+            String attendees) {
+        this.user = user;
+        this.room = room;
+        this.title = title;
+        this.description = description;
+        this.startDateTime = startDateTime;
+        this.endDateTime = endDateTime;
+        this.attendees = attendees;
+    }
+
 }
