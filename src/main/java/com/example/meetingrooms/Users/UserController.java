@@ -21,12 +21,12 @@ public class UserController {
         return "User added successfully";
     }
 
-    @GetMapping("/getUsers")
+    @GetMapping("/users")
     public List<User> getUsers() {
         return repo.findAll();
     }
 
-    @DeleteMapping("/deleteUser/{id}")
+    @DeleteMapping("/users/{id}")
     public String deleteUser(@PathVariable String id) {
         repo.deleteById(id);
 
