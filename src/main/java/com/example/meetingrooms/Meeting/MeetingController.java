@@ -27,18 +27,11 @@ public class MeetingController {
         return repo.findAll();
     }
 
-    @GetMapping("/meetings/{date}")
-    public List<Meeting> getByDate(@PathVariable String date) {
 
-        List<Meeting> meetings = new ArrayList<Meeting>();
-        List<Meeting> allMeetings = repo.findAll();
+    @GetMapping("meetings/{date}")
+    public List<Meeting> getByDate(@PathVariable String date){
+        List<Meeting> meetings = repo.findByStartDateRegEx(date);
 
-        // Checks all meetings and compares to passed date to see if they match
-        for (int i = 0; i < allMeetings.size(); i++) {
-            if (allMeetings.get(i).getStartDateTime().substring(0, 10).equals(date)) {
-                meetings.add(allMeetings.get(i));
-            }
-        }
         return meetings;
     }
 
