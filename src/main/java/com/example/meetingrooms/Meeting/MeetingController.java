@@ -1,25 +1,74 @@
 package com.example.meetingrooms.Meeting;
 
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@CrossOrigin("http://localhost:3000")
 public class MeetingController {
     @Autowired
     private MeetingRepository repo;
 
     @PostMapping("/meetings")
     public String saveMeeting(@RequestBody Meeting meeting) {
+        // gets meeting as object (NOT saved into repo) and allows changes
         System.out.println(meeting);
+        System.out.println(meeting.getTitle()); // does the regex have an issue with thr partial times
+        boolean validate = validateMeeting(meeting);
 
-        System.out.println(meeting.getTitle());
+        // saves meeting to repo and returns message into Postman
+        if (validate == true) {
+            repo.save(meeting);
+            return "Meeting added successfully";
+        }
+        return "Meeting not added due to conflict";
+    }
 
-        repo.save(meeting);
+    @PostMapping("meetings/")
+    public boolean validateMeeting(@RequestBody Meeting meeting) {
+        String room = meeting.getRoom();
+        boolean valid = false;
+        Instant startDateTime = null;
+        startDateTime = Instant.parse(meeting.getStartDateTime());
 
-        return "Meeting added successfully";
+        Instant endDateTime = null;
+        endDateTime = Instant.parse(meeting.getEndDateTime());
+
+        List<Meeting> meetings = repo.findByRoomDate(room, startDateTime); // can get start/end times from here
+        System.out.println("Meeting size: " + meetings.size());
+        if (meetings.size() == 0) {
+            valid = true;
+            return valid;
+        }
+
+        for (int i = 0; i < meetings.size(); i++) {
+            Instant compStart = null;
+            compStart = Instant.parse(meetings.get(i).getStartDateTime());
+
+            Instant compEnd = null;
+            compEnd = Instant.parse(meetings.get(i).getEndDateTime());
+            // rejects any meetings that overlap currently scheduled meetings times by
+            // checking if new start time is at or after current meeting's AND new start
+            // time is before
+            // current meeting ends OR new end time is after current start time AND new end
+            // is before or at
+            // current end time OR if the meetings share start or end times
+            if ((!(startDateTime.isBefore(compStart)) && (startDateTime.isBefore(compEnd))) ||
+                    (!(endDateTime.isBefore(compStart)) && endDateTime.isBefore(compEnd)) ||
+                    startDateTime.equals(compStart) || (endDateTime.equals(compEnd))) {
+
+                valid = false;
+                break;
+            } else {
+                valid = true;
+            }
+        }
+        return valid;
     }
 
     @GetMapping("/meetings")
@@ -27,15 +76,14 @@ public class MeetingController {
         return repo.findAll();
     }
 
-
     @GetMapping("meetings/{date}")
-    public List<Meeting> getByDate(@PathVariable String date){
+    public List<Meeting> getByDate(@PathVariable String date) {
         List<Meeting> meetings = repo.findByStartDateRegEx(date);
 
         return meetings;
     }
 
-    @DeleteMapping("/meeting/{id}")
+    @DeleteMapping("/meetings/{id}")
     public String deletMeeting(@PathVariable String id) {
         repo.deleteById(id);
 
