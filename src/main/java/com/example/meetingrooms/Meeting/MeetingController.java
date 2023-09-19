@@ -1,8 +1,6 @@
 package com.example.meetingrooms.Meeting;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,15 +16,28 @@ public class MeetingController {
     public String saveMeeting(@RequestBody Meeting meeting) {
         // gets meeting as object (NOT saved into repo) and allows changes
         System.out.println(meeting);
-        System.out.println(meeting.getTitle()); // does the regex have an issue with thr partial times
+        System.out.println(meeting.getTitle()); // does the regex have an issue with the partial times
         boolean validate = validateMeeting(meeting);
 
         // saves meeting to repo and returns message into Postman
-        if (validate == true) {
+        if (validate) {
             repo.save(meeting);
             return "Meeting added successfully";
         }
         return "Meeting not added due to conflict";
+    }
+
+    @PutMapping("/meetings/{id}")
+    public String updateMeeting(@RequestBody Meeting meeting) {
+        // updates meeting by overwriting old one with new one
+        boolean validate = validateMeeting(meeting);
+
+        // saves meeting to repo after confirming no conflicts
+        if (validate) {
+            repo.save(meeting);
+            return "Meeting edited successfully";
+        }
+        return "Meeting not edited due to conflict";
     }
 
     @PostMapping("meetings/")
@@ -40,8 +51,7 @@ public class MeetingController {
         endDateTime = Instant.parse(meeting.getEndDateTime());
 
         List<Meeting> meetings = repo.findByRoomDate(room, startDateTime); // can get start/end times from here
-        System.out.println("Meeting size: " + meetings.size());
-        if (meetings.size() == 0) {
+        if (meetings.isEmpty()) {
             valid = true;
             return valid;
         }
@@ -52,6 +62,14 @@ public class MeetingController {
 
             Instant compEnd = null;
             compEnd = Instant.parse(meetings.get(i).getEndDateTime());
+
+            // Is used when updating a meeting, insuring a false flag doesn't occur by
+            // comparing
+            // to the meeting being updated to itself
+            if (meetings.get(i).getId().equals(meeting.getId())) {
+                continue;
+            }
+
             // rejects any meetings that overlap currently scheduled meetings times by
             // checking if new start time is at or after current meeting's AND new start
             // time is before
