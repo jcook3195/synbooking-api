@@ -1,4 +1,4 @@
-package com.example.meetingrooms;
+package com.example.meetingrooms.SpringSec;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,7 +9,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -21,8 +20,10 @@ public class SecurityConfig {
     // builds default login screen
     @Bean
     public SecurityFilterChain SecurityFilterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests((requests) -> requests.anyRequest().authenticated());
+        http.authorizeHttpRequests((requests) -> requests.anyRequest().permitAll());// .authenticated());
         http.formLogin(withDefaults());
+        http.cors(cors -> cors.disable());
+        http.csrf(csrf -> csrf.disable());
         // http.httpBasic(withDefaults());
         return http.build();
     }
@@ -34,11 +35,10 @@ public class SecurityConfig {
     }
 
     // allows requests front frontend
-
     @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
+    CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
+        configuration.setAllowedOrigins(Arrays.asList("https://localhost:3000"));
         configuration.setAllowedMethods(Arrays.asList("*"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

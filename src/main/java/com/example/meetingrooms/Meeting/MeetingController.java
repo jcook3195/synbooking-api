@@ -66,7 +66,7 @@ public class MeetingController {
 
             // Is used when updating a meeting, insuring a false flag doesn't occur by
             // comparing
-            // to the meeting being updated to itself
+            // the meeting being updated to itself
             if (meetings.get(i).getId().equals(meeting.getId())) {
                 continue;
             }
@@ -95,7 +95,7 @@ public class MeetingController {
         return repo.findAll();
     }
 
-    @GetMapping("meetings/{date}")
+    @GetMapping("meetings/{date}") // EDIT? change to /meetings ?
     public List<Meeting> getByDate(@PathVariable String date) {
         List<Meeting> meetings = repo.findByStartDateRegEx(date);
 
