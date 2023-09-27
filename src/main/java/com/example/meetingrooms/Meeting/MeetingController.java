@@ -1,10 +1,11 @@
 package com.example.meetingrooms.Meeting;
 
-import java.time.Instant;
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
 
 @RestController
 @CrossOrigin("http://localhost:3000")
@@ -17,7 +18,7 @@ public class MeetingController {
         // gets meeting as object (NOT saved into repo) and allows changes
         System.out.println(meeting);
         System.out.println(meeting.getTitle()); // does the regex have an issue with the partial times
-        boolean validate = validateMeeting(meeting);
+        boolean validate = validateMeeting(meeting, null);
 
         // saves meeting to repo and returns message into Postman
         if (validate) {
@@ -28,11 +29,14 @@ public class MeetingController {
     }
 
     @PutMapping("/meetings/{id}")
-    public String updateMeeting(@RequestBody Meeting meeting) {
+    public String updateMeeting(@PathVariable String id, @RequestBody Meeting meeting) {
         // updates meeting by overwriting old one with new one
-        boolean validate = validateMeeting(meeting);
+
+        //Not happy about this  -Jordan :(
+        boolean validate = validateMeeting(meeting, id);
 
         // saves meeting to repo after confirming no conflicts
+        System.out.println(validate);
         if (validate) {
             repo.save(meeting);
             return "Meeting edited successfully";
@@ -40,8 +44,7 @@ public class MeetingController {
         return "Meeting not edited due to conflict";
     }
 
-    @PostMapping("meetings/")
-    public boolean validateMeeting(@RequestBody Meeting meeting) {
+    public boolean validateMeeting(Meeting meeting, String id) {
         String room = meeting.getRoom();
         boolean valid = false;
         Instant startDateTime = null;
@@ -66,7 +69,8 @@ public class MeetingController {
             // Is used when updating a meeting, insuring a false flag doesn't occur by
             // comparing
             // to the meeting being updated to itself
-            if (meetings.get(i).getId().equals(meeting.getId())) {
+            String idCheck = meeting.getId();
+            if (meetings.get(i).getId().equals(meeting.getId()) || meetings.get(i).getId().equals(id)) {
                 continue;
             }
 
@@ -99,6 +103,13 @@ public class MeetingController {
         List<Meeting> meetings = repo.findByStartDateRegEx(date);
 
         return meetings;
+    }
+
+    @GetMapping("meetings/id/{id}")
+    public Optional<Meeting> getById(@PathVariable String id) {
+        Optional<Meeting> meeting = repo.findById(id);
+
+        return meeting;
     }
 
     @DeleteMapping("/meetings/{id}")
