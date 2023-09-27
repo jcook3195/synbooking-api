@@ -16,9 +16,9 @@ public class MeetingController {
 
     @PostMapping("/meetings")
     public String saveMeeting(@RequestBody Meeting meeting) {
-        // gets meeting as object (NOT saved into repo) and allows changes
+        // gets meeting as object (does NOT save into repo) and allows changes
         System.out.println(meeting);
-        System.out.println(meeting.getTitle()); // does the regex have an issue with the partial times
+        System.out.println(meeting.getTitle());
         boolean validate = validateMeeting(meeting, null);
 
         // saves meeting to repo and returns message into Postman
@@ -26,7 +26,7 @@ public class MeetingController {
             repo.save(meeting);
             return "Meeting added successfully";
         }
-        return "Meeting not added due to conflict";
+        return "Meeting not added due to a conflict";
     }
 
     @PutMapping("/meetings/{id}")
@@ -48,7 +48,7 @@ public class MeetingController {
     public boolean validateMeeting(Meeting meeting, String id) {
         String room = meeting.getRoom();
         boolean valid = false;
-        Instant startDateTime = null;
+        Instant startDateTime = null; // would like to consider consolidating with line 52, same for 54-55, etc
         startDateTime = Instant.parse(meeting.getStartDateTime());
 
         Instant endDateTime = null;
@@ -67,10 +67,9 @@ public class MeetingController {
             Instant compEnd = null;
             compEnd = Instant.parse(meetings.get(i).getEndDateTime());
 
-            // Is used when updating a meeting, insuring a false flag doesn't occur by
+            // Is used when updating a meeting, ensuring a false flag doesn't occur by
             // comparing
-            // to the meeting being updated to itself
-            String idCheck = meeting.getId();
+            // the meeting being updated to itself
             if (meetings.get(i).getId().equals(meeting.getId()) || meetings.get(i).getId().equals(id)) {
                 continue;
             }
