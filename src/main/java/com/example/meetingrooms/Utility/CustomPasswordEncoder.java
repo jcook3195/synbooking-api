@@ -4,7 +4,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-@Component //password encoder component using BCrypt
+/**
+ * Custom password encoder component using BCrypt
+**/
+@Component
 public class CustomPasswordEncoder {
     private PasswordEncoder passwordEncoder;
 

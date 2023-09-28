@@ -7,7 +7,6 @@ import java.util.Optional;
 
 public interface UserRepo extends MongoRepository<User, String> {
 
-    //void findAll(String username);
-
+    //Query to find account by a username to pull information
     Optional<User> findByUsername(@Param("username") String username);
 }

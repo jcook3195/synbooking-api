@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 
 
 import static org.springframework.security.config.Customizer.withDefaults;
+/**Main Security Configuration File**/
 
 @EnableWebSecurity
 @Configuration
@@ -31,68 +32,41 @@ public class SecurityConfig {
     @Autowired //allows for custom password encoder
     private CustomPasswordEncoder customPasswordEncoder;
 
-    @Autowired
+    @Autowired //allows for jwt token filter
     private JwtFilter jwtFilter;
 
-    @Bean
+    @Bean //used for authorization controller to get the authorizationManager
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfiguration) throws Exception {
         return authConfiguration.getAuthenticationManager();
     }
 
+    //Method for creating authentications using custom password encoder
     protected void Authentication(AuthenticationManagerBuilder auth) throws Exception{
         auth.userDetailsService(userDetailsService).passwordEncoder(customPasswordEncoder.getPasswordEncoder());
     }
 
+    //"Driver" of all security features
     @Bean
     SecurityFilterChain SecurityFilterChain(HttpSecurity http) throws Exception {
-//        //Default Requests
-//        http.authorizeHttpRequests((requests) -> requests.anyRequest().authenticated());
-//
-//        //Default Form Login On Page
-//        //http.formLogin(withDefaults());
-//
-//        //Default browser implement
-//        http.httpBasic(withDefaults());
-//        //http.csrf((csrf) -> csrf.disable()); //Disables the csrf tokens
-//        return http.build();
 
-//        //Authorize Everything
-//        http.authorizeHttpRequests((requests) -> requests.anyRequest().permitAll());
-//        http.httpBasic(withDefaults());
-//        return http.build();
-
-        //Authorize specific paths, deny all other paths
-        //http.authorizeHttpRequests((authorize) -> authorize.requestMatchers("/meetings").permitAll().anyRequest().denyAll());
-        //http.httpBasic(withDefaults());
-        //return http.build();
-
-//        //Default cors Request Currently permits all (switch to .authenticated());) for authentication to occur
-//        http.cors(withDefaults()).authorizeHttpRequests((requests) -> requests.anyRequest().authenticated());
-//
-//        //Default Form Login On Page
-//        http.formLogin(withDefaults());
-//
-//        //Disables CSRF Tokens
-//        http.csrf((csrf) -> csrf.disable());
-//
-//        //Default browser implement
-//        http.httpBasic(withDefaults());
-//        return http.build();
+        //enables default cors and disables csrf
         http = http.cors(withDefaults()).csrf((csrf)-> csrf.disable());
-        http = http.sessionManagement((sessionManagement) -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-        // .and());
 
+        //creates a stateless session for the authentication management
+        http = http.sessionManagement((sessionManagement) -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+        //exception handling to ensure that the proper message is used for
         http = http.exceptionHandling((exceptionHandling -> exceptionHandling.authenticationEntryPoint((request, response, ex) -> {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, ex.getMessage());
         })));
 
+        //permits requests to /api/auth/login requires authorization for any other request
         http.authorizeHttpRequests((requests) -> requests.requestMatchers("/api/auth/**").permitAll().anyRequest().authenticated());
 
+        //adds the jwt filter before http call
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
-
         return http.build();
 
     }
-
 
 }

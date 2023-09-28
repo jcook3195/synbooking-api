@@ -18,27 +18,33 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.List;
 
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-
+/**
+ * This is a filter for jwt.
+ * This is an authentication checking for a correct
+ * JSON Web Token header or "bearer"
+**/
 
 @Component
 public class JwtFilter extends OncePerRequestFilter {
-    @Autowired
+    @Autowired //access user repository
     private UserRepo userRepo;
-    @Autowired
+    @Autowired //access jwt utility functions
     private JwtUtil jwtUtil;
 
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
+        //This checks for if the authorization header is correct
         final String header = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (!StringUtils.hasText(header) || StringUtils.hasText(header) && !header.startsWith("bearer ")){
             chain.doFilter(request, response);
             return;
         }
+        //Splits the token from the tag and keeping the token value
         final String token = header.split(" ")[1].trim();
 
+        //grabs the username via token and compares if they are the same
         UserDetails userDetails = userRepo
                 .findByUsername(jwtUtil.getUsernameFromToken(token))
                 .orElse(null);
@@ -48,6 +54,7 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
+        //Creates new password authentication token that stores user details and authorities
         UsernamePasswordAuthenticationToken
                 authentication = new UsernamePasswordAuthenticationToken(
                         userDetails, null,
@@ -58,6 +65,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 new WebAuthenticationDetailsSource().buildDetails(request)
         );
 
+        //sets context to the proper authorization and sends response to next filter
         SecurityContextHolder.getContext().setAuthentication(authentication);
         chain.doFilter(request, response);
 

@@ -1,5 +1,10 @@
 package com.example.meetingrooms.DTO;
 
+/**
+ * Acts as a DATA TRANSFER OBJECT
+ * Similar to User class but
+ * this is used as a temporary for transfer
+**/
 public class AuthCredentialsRequest {
     private String username;
     private String password;
