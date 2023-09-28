@@ -1,6 +1,8 @@
 package com.example.meetingrooms.Meeting;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
@@ -15,8 +17,8 @@ public class MeetingController {
     private MeetingRepository repo;
 
     @PostMapping("/meetings")
-    public String saveMeeting(@RequestBody Meeting meeting) {
-        // gets meeting as object (does NOT save into repo) and allows changes
+    public ResponseEntity<String> saveMeeting(@RequestBody Meeting meeting) {
+        // gets meeting as object (NOT saved into repo) and allows changes
         System.out.println(meeting);
         System.out.println(meeting.getTitle());
         boolean validate = validateMeeting(meeting, null);
@@ -24,25 +26,24 @@ public class MeetingController {
         // saves meeting to repo and returns message into Postman
         if (validate) {
             repo.save(meeting);
-            return "Meeting added successfully";
+            return new ResponseEntity<>("Meeting added successfully", HttpStatus.OK);
         }
-        return "Meeting not added due to a conflict";
+        return new ResponseEntity<>("Meeting not added due to conflict", HttpStatus.BAD_REQUEST);
     }
 
     @PutMapping("/meetings/{id}")
-    public String updateMeeting(@PathVariable String id, @RequestBody Meeting meeting) {
-        // updates meeting by overwriting old one with new one
-
+    public ResponseEntity<String> updateMeeting(@PathVariable String id, @RequestBody Meeting meeting) {
+        // updates meeting by overwriting old one with new one; requires id to be passed
+        // from frontend
         // Not happy about this -Jordan :(
         boolean validate = validateMeeting(meeting, id);
 
         // saves meeting to repo after confirming no conflicts
-        System.out.println(validate);
         if (validate) {
             repo.save(meeting);
-            return "Meeting edited successfully";
+            return new ResponseEntity<>("Meeting edited successfully", HttpStatus.OK);
         }
-        return "Meeting not edited due to conflict";
+        return new ResponseEntity<>("Meeting not edited due to conflict", HttpStatus.BAD_REQUEST);
     }
 
     public boolean validateMeeting(Meeting meeting, String id) {
@@ -69,8 +70,10 @@ public class MeetingController {
 
             // Is used when updating a meeting, ensuring a false flag doesn't occur by
             // comparing
-            // the meeting being updated to itself
-            if (meetings.get(i).getId().equals(meeting.getId()) || meetings.get(i).getId().equals(id)) {
+            // to the meeting being updated to itself
+            String idCheck = meeting.getId();
+
+            if (meetings.get(i).getId().equals(meeting.getId()) && meetings.size() > 1) {
                 continue;
             }
 
@@ -86,6 +89,7 @@ public class MeetingController {
 
                 valid = false;
                 break;
+
             } else {
                 valid = true;
             }
@@ -94,28 +98,48 @@ public class MeetingController {
     }
 
     @GetMapping("/meetings")
-    public List<Meeting> getMeetings() {
-        return repo.findAll();
+    public ResponseEntity<?> getMeetings() {
+        // If there are no users
+        if (repo.findAll().isEmpty()) {
+            return new ResponseEntity<>("Repo is empty, add some meetings!", HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(repo.findAll(), HttpStatus.OK);
     }
 
-    @GetMapping("meetings/{date}") // EDIT? change to /meetings ?
-    public List<Meeting> getByDate(@PathVariable String date) {
+    @GetMapping("meetings/{date}")
+    public ResponseEntity<?> getByDate(@PathVariable String date) {
         List<Meeting> meetings = repo.findByStartDateRegEx(date);
 
-        return meetings;
+        // If there are no meetings on that date
+        if (meetings.isEmpty()) {
+            return new ResponseEntity<>("No meetings on that date found", HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(meetings, HttpStatus.OK);
     }
 
     @GetMapping("meetings/id/{id}")
-    public Optional<Meeting> getById(@PathVariable String id) {
+    public ResponseEntity<?> getById(@PathVariable String id) {
         Optional<Meeting> meeting = repo.findById(id);
 
-        return meeting;
+        // If there is no meeting with that ID
+        if (meeting.isEmpty()) {
+            return new ResponseEntity<>("No meeting with that ID found", HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(meeting, HttpStatus.OK);
     }
 
     @DeleteMapping("/meetings/{id}")
-    public String deletMeeting(@PathVariable String id) {
+    public ResponseEntity<String> deleteMeeting(@PathVariable String id) {
+        // If meeting attempted to be deleted does not exist
+        if (!repo.existsById(id)) {
+            return new ResponseEntity<>("Meeting not deleted; could not find meeting", HttpStatus.NOT_FOUND);
+        }
+
         repo.deleteById(id);
 
-        return "Meeting Deleted";
+        return new ResponseEntity<>("Meeting deleted", HttpStatus.OK);
     }
 }
