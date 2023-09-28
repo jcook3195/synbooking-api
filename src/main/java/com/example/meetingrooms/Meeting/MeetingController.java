@@ -34,9 +34,8 @@ public class MeetingController {
 
         //Not happy about this  -Jordan :(
         boolean validate = validateMeeting(meeting, id);
-
+        
         // saves meeting to repo after confirming no conflicts
-        System.out.println(validate);
         if (validate) {
             repo.save(meeting);
             return "Meeting edited successfully";
@@ -70,7 +69,8 @@ public class MeetingController {
             // comparing
             // to the meeting being updated to itself
             String idCheck = meeting.getId();
-            if (meetings.get(i).getId().equals(meeting.getId()) || meetings.get(i).getId().equals(id)) {
+
+            if (meetings.get(i).getId().equals(meeting.getId()) && meetings.size() > 1) {
                 continue;
             }
 
@@ -86,6 +86,7 @@ public class MeetingController {
 
                 valid = false;
                 break;
+
             } else {
                 valid = true;
             }
@@ -113,7 +114,7 @@ public class MeetingController {
     }
 
     @DeleteMapping("/meetings/{id}")
-    public String deletMeeting(@PathVariable String id) {
+    public String deleteMeeting(@PathVariable String id) {
         repo.deleteById(id);
 
         return "Meeting Deleted";
