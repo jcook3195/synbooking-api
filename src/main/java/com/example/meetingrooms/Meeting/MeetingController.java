@@ -32,8 +32,7 @@ public class MeetingController {
 
     @PutMapping("/meetings/{id}")
     public ResponseEntity<String> updateMeeting(@PathVariable String id, @RequestBody Meeting meeting) {
-        // updates meeting by overwriting old one with new one
-
+        // updates meeting by overwriting old one with new one; requires id to be passed from frontend
         //Not happy about this  -Jordan :(
         boolean validate = validateMeeting(meeting, id);
 
@@ -138,6 +137,6 @@ public class MeetingController {
 
         repo.deleteById(id);
 
-        return new ResponseEntity<>("Meeting Deleted", HttpStatus.OK);
+        return new ResponseEntity<>("Meeting deleted", HttpStatus.OK);
     }
 }
