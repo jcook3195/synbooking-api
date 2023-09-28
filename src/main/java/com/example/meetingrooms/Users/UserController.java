@@ -1,6 +1,8 @@
 package com.example.meetingrooms.Users;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,25 +14,34 @@ public class UserController {
     private UserRepo repo;
 
     @PostMapping("/users")
-    public String saveUser(@RequestBody User user) {
+    public ResponseEntity<String> saveUser(@RequestBody User user) {
         System.out.println(user);
 
         System.out.println(user.getPassword());
 
         repo.save(user);
 
-        return "User added successfully";
+        return new ResponseEntity<>("User added successfully", HttpStatus.OK);
     }
 
     @GetMapping("/users")
-    public List<User> getUsers() {
-        return repo.findAll();
+    public ResponseEntity<?> getUsers() {
+        //If there are no users
+        if (repo.findAll().isEmpty()) {
+            return new ResponseEntity<>("Repo is empty, add some users!", HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(repo.findAll(), HttpStatus.OK);
     }
 
     @DeleteMapping("/users/{id}")
-    public String deleteUser(@PathVariable String id) {
+    public ResponseEntity<String> deleteUser(@PathVariable String id) {
+        //If user attempted to be deleted does not exist
+        if (!repo.existsById(id)) {
+            return new ResponseEntity<>("User not deleted; could not find user", HttpStatus.NOT_FOUND);
+        }
+
         repo.deleteById(id);
 
-        return "User Deleted";
+        return new ResponseEntity<>("User Deleted", HttpStatus.OK);
     }
 }
