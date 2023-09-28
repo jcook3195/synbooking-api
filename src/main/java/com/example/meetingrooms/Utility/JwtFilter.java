@@ -1,6 +1,6 @@
 package com.example.meetingrooms.Utility;
 
-import com.example.meetingrooms.Users.UserRepo;
+import com.example.meetingrooms.Users.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,7 +27,7 @@ import java.util.List;
 @Component
 public class JwtFilter extends OncePerRequestFilter {
     @Autowired //access user repository
-    private UserRepo userRepo;
+    private UserRepository userRepo;
     @Autowired //access jwt utility functions
     private JwtUtil jwtUtil;
 

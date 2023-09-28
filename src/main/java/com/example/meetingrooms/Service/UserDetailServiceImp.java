@@ -1,7 +1,7 @@
 package com.example.meetingrooms.Service;
 
 import com.example.meetingrooms.Users.User;
-import com.example.meetingrooms.Users.UserRepo;
+import com.example.meetingrooms.Users.UserRepository;
 import com.example.meetingrooms.Utility.CustomPasswordEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,7 +20,7 @@ public class UserDetailServiceImp implements UserDetailsService {
     private CustomPasswordEncoder passwordEncoder;
 
     @Autowired //allows access to the user repository
-    private UserRepo userRepo;
+    private UserRepository userRepo;
 
     @Override //override function to get user by username
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
