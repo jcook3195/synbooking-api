@@ -53,6 +53,12 @@ public class MeetingController {
         Instant endDateTime = null;
         endDateTime = Instant.parse(meeting.getEndDateTime());
 
+        //Ensures start time is always before end time
+        if (!startDateTime.isBefore(endDateTime)) {
+            System.out.println("End time is before start time");
+            return false;
+        }
+
         List<Meeting> meetings = repo.findByRoomDate(room, startDateTime); // can get start/end times from here
         if (meetings.isEmpty()) {
             valid = true;
@@ -70,8 +76,8 @@ public class MeetingController {
             // comparing
             // to the meeting being updated to itself
             String idCheck = meeting.getId();
-
-            if (meetings.get(i).getId().equals(meeting.getId()) && meetings.size() > 1) {
+            if (meetings.get(i).getId().equals(id)) {
+                valid = true;
                 continue;
             }
 
@@ -84,7 +90,6 @@ public class MeetingController {
             if ((!(startDateTime.isBefore(compStart)) && (startDateTime.isBefore(compEnd))) ||
                     (!(endDateTime.isBefore(compStart)) && endDateTime.isBefore(compEnd)) ||
                     startDateTime.equals(compStart) || (endDateTime.equals(compEnd))) {
-
                 valid = false;
                 break;
 
