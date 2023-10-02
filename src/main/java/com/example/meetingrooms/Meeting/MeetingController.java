@@ -76,8 +76,8 @@ public class MeetingController {
             // comparing
             // to the meeting being updated to itself
             String idCheck = meeting.getId();
-
-            if (meetings.get(i).getId().equals(meeting.getId()) && meetings.size() > 1) {
+            if (meetings.get(i).getId().equals(id)) {
+                valid = true;
                 continue;
             }
 
@@ -90,7 +90,6 @@ public class MeetingController {
             if ((!(startDateTime.isBefore(compStart)) && (startDateTime.isBefore(compEnd))) ||
                     (!(endDateTime.isBefore(compStart)) && endDateTime.isBefore(compEnd)) ||
                     startDateTime.equals(compStart) || (endDateTime.equals(compEnd))) {
-
                 valid = false;
                 break;
 
