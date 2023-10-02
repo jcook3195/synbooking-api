@@ -53,6 +53,12 @@ public class MeetingController {
         Instant endDateTime = null;
         endDateTime = Instant.parse(meeting.getEndDateTime());
 
+        //Ensures start time is always before end time
+        if (!startDateTime.isBefore(endDateTime)) {
+            System.out.println("End time is before start time");
+            return false;
+        }
+
         List<Meeting> meetings = repo.findByRoomDate(room, startDateTime); // can get start/end times from here
         if (meetings.isEmpty()) {
             valid = true;
