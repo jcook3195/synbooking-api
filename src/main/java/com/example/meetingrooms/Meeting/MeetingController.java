@@ -104,7 +104,7 @@ public class MeetingController {
     public ResponseEntity<?> getMeetings() {
         //If there are no users
         if (repo.findAll().isEmpty()){
-            return new ResponseEntity<>("Repo is empty, add some meetings!", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("Repo is empty, add some meetings!", HttpStatus.OK);
         }
 
         return new ResponseEntity<>(repo.findAll(), HttpStatus.OK);

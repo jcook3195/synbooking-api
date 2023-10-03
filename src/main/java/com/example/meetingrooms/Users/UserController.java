@@ -26,7 +26,7 @@ public class UserController {
     public ResponseEntity<?> getUsers() {
         //If there are no users
         if (repo.findAll().isEmpty()) {
-            return new ResponseEntity<>("Repo is empty, add some users!", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("Repo is empty, add some users!", HttpStatus.OK);
         }
         return new ResponseEntity<>(repo.findAll(), HttpStatus.OK);
     }
