@@ -116,7 +116,7 @@ public class MeetingController {
 
         //If there are no meetings on that date
         if (meetings.isEmpty()) {
-            return new ResponseEntity<>("No meetings on that date found", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("No meetings on that date found", HttpStatus.OK);
         }
 
         return new ResponseEntity<>(meetings, HttpStatus.OK);
@@ -128,7 +128,7 @@ public class MeetingController {
 
         //If there is no meeting with that ID
         if (meeting.isEmpty()) {
-            return new ResponseEntity<>("No meeting with that ID found", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("No meeting with that ID found", HttpStatus.OK);
         }
 
         return new ResponseEntity<>(meeting, HttpStatus.OK);
