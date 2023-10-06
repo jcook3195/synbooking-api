@@ -61,10 +61,10 @@ public class SecurityConfig {
         })));
 
         //permits requests to /api/auth/login requires authorization for any other request
-        http.authorizeHttpRequests((requests) -> requests.requestMatchers("/api/auth/**").permitAll().anyRequest().authenticated());
+        http.authorizeHttpRequests((requests) -> requests.requestMatchers("/api/auth/**").permitAll().anyRequest().permitAll());//authenticated());
 
         //adds the jwt filter before http call
-        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+        //http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
 
     }
