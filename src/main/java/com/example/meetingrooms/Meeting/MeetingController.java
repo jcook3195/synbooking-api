@@ -145,4 +145,12 @@ public class MeetingController {
 
         return new ResponseEntity<>("Meeting deleted", HttpStatus.OK);
     }
+
+    // this needs to be removed in production, adding to make testing easier
+    @DeleteMapping("/meetings")
+    public ResponseEntity<String> deleteAllMeetings() {
+        repo.deleteAll();
+
+        return new ResponseEntity<>("All meetings have been deleted.", HttpStatus.OK);
+    }
 }
